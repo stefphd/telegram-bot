@@ -12,7 +12,6 @@ Thumbs.db
 *.app
 *.exe
 *.war
-
 *.mp4
 *.tiff
 *.avi
@@ -20,6 +19,6 @@ Thumbs.db
 *.mov
 *.wmv
 *.dll
-
 *.spec
+token.txt
 

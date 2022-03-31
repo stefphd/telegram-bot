@@ -61,7 +61,7 @@ ask_commands =  'What would you like to do?\n\n' + \
                 ' - /stop to stop the bot\n\n'
                 
 after_command = 'Type /commands to see the list of all commands'
-easter_dir = './easter_egg/'
+easter_dir = './.easter_egg/'
 
 
 # Def  
