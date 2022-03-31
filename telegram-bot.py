@@ -1,3 +1,5 @@
+from logging import error
+from platform import system
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext
 from pyautogui import screenshot
@@ -5,8 +7,14 @@ from os import getenv, kill, getpid, remove, listdir
 from signal import SIGINT
 from sys import exit
 from datetime import datetime
-from win32gui import SendMessage
-from win32con import HWND_BROADCAST, WM_SYSCOMMAND, SC_MONITORPOWER
+if system() == 'Windows':
+    from win32gui import SendMessage
+    from win32con import HWND_BROADCAST, WM_SYSCOMMAND, SC_MONITORPOWER
+elif system() == 'Linux':
+    pass
+else:
+    error("System not supported")
+
 from subprocess import Popen
 from random import randint
 from time import sleep
@@ -37,11 +45,11 @@ def myprint(mystr):
 myprint("Uploading the bot token file...")
 
 try:
-    botTokenFile = open(r".\botToken.txt")
+    botTokenFile = open(r"./token.txt")
     botToken = botTokenFile.readline()
     myprint("Bot token uploaded successfully")
 except:
-    myprint("Bot token not found, please create a .txt file 'botToken.txt' with your bot token in the first line")
+    myprint("Bot token not found, please create a .txt file named 'token.txt' with your bot token in the first line")
     input('Press [OK] to exit from the program...')
     exit()
     
@@ -68,14 +76,9 @@ easter_dir = './.easter_egg/'
    
 def start(update: Update, context: CallbackContext) -> None:
     userName = update.message.from_user.first_name;
-    if userName == 'Camilla':
-        update.message.reply_text('Hi ' + userName + ' \U00002764 ' + 
-                                  ask_commands +
-                                  'Make sure the bot is running on your PC!')
-    else:
-        update.message.reply_text('Hi ' + userName + ' \U0001F604 ' + 
-                                  ask_commands +
-                                  'Make sure the bot is running on your PC!')
+    update.message.reply_text('Hi ' + userName + ' \U0001F604 ' + 
+                            ask_commands +
+                            'Make sure the bot is running on your PC!')
     
 def commands(update: Update, context: CallbackContext) -> None:
     update.message.reply_text(ask_commands)
@@ -88,7 +91,13 @@ def screen(update: Update, context: CallbackContext) -> None:
     myprint("Screenshot requested by " + userName + " at " + date_time)
     update.message.reply_text('Taking a screenshot of your PC \U0001F60B ')
     myScreenshot = screenshot()
-    fileName = getenv('APPDATA') + '\\myScreen.png'
+    if system() == 'Windows':
+        fileName = getenv('APPDATA') + '\\telegram-bot-screen.png'
+    elif system() == 'Linux':
+        fileName = getenv('HOME') + '/.cache/telegram-bot-screen.png'
+    else:
+        error("OS not supported")
+    
     try:
         myScreenshot.save(fileName)
     except:
@@ -116,7 +125,12 @@ def snapshot(update: Update, context: CallbackContext) -> None:
     date_time = now.strftime("%H:%M:%S, %m/%d/%Y")
     myprint("Snapshot requested by " + userName + " at " + date_time)
     update.message.reply_text('Taking a snapshot from your PC \U0001F60B ')
-    fileName = getenv('APPDATA') + '\\mySnapshot.png'
+    if system() == 'Windows':
+        fileName = getenv('APPDATA') + '\\telegram-bot-snapshot.png'
+    elif system() == 'Linux':
+        fileName = getenv('HOME') + '/.cache/telegram-bot-snapshot.png'
+    else:
+        error("OS not supported")
     try:
         cam = VideoCapture(0,CAP_DSHOW)
         s, img = cam.read()
@@ -158,7 +172,12 @@ def turnoff(update: Update, context: CallbackContext) -> None:
     date_time = now.strftime("%H:%M:%S, %m/%d/%Y")
     myprint("Monitor turned off by " + userName + " at " + date_time)
     update.message.reply_text('Turning off the monitor of your PC \U0001F634')
-    SendMessage(HWND_BROADCAST,WM_SYSCOMMAND, SC_MONITORPOWER, 2)
+    if system() == 'Windows':
+        SendMessage(HWND_BROADCAST,WM_SYSCOMMAND, SC_MONITORPOWER, 2)
+    elif system() == 'Linux':
+        pass
+    else:
+        error("OS not supported")
     update.message.reply_text('Monitor turned off \U0001F607 ' + after_command)
 
     
@@ -168,7 +187,12 @@ def turnon(update: Update, context: CallbackContext) -> None:
     date_time = now.strftime("%H:%M:%S, %m/%d/%Y")
     myprint("Monitor turned on by " + userName + " at " + date_time)
     update.message.reply_text('Turning on the monitor of your PC \U0001F604')
-    SendMessage(HWND_BROADCAST,WM_SYSCOMMAND, SC_MONITORPOWER, -1)
+    if system() == 'Windows':
+        SendMessage(HWND_BROADCAST,WM_SYSCOMMAND, SC_MONITORPOWER, -1)
+    elif system() == 'Linux':
+        pass
+    else:
+        error("OS not supported")
     update.message.reply_text('Monitor turned on \U0001F607 ' + after_command)
     
 def lock(update: Update, context: CallbackContext) -> None:
@@ -177,7 +201,12 @@ def lock(update: Update, context: CallbackContext) -> None:
     date_time = now.strftime("%H:%M:%S, %m/%d/%Y")
     myprint("PC locked by " + userName + " at " + date_time)
     update.message.reply_text('Locking your PC \U0001F634')
-    Popen("rundll32.exe user32.dll, LockWorkStation",shell=True)
+    if system() == 'Windows':
+        Popen("rundll32.exe user32.dll, LockWorkStation",shell=True)
+    elif system() == 'Linux':
+        pass
+    else:
+        error("OS not supported")
     update.message.reply_text('PC locked \U0001F607 ' + after_command)
         
 def unlock(update: Update, context: CallbackContext) -> None:
@@ -220,7 +249,12 @@ def shutdown(update: Update, context: CallbackContext) -> None:
     date_time = now.strftime("%H:%M:%S, %m/%d/%Y")
     myprint("PC shutted down by " + userName + " at " + date_time)
     update.message.reply_text('Shutting down your PC \U0001F634 The bot will be stopped')
-    Popen("shutdown /s /t 1",shell=True)
+    if system() == 'Windows':
+        Popen("shutdown /s /t 1",shell=True)
+    elif system() == 'Linux':
+        pass
+    else:
+        error("OS not supported")
     stop(update,context)
     
 def restart(update: Update, context: CallbackContext) -> None:
@@ -229,7 +263,12 @@ def restart(update: Update, context: CallbackContext) -> None:
     date_time = now.strftime("%H:%M:%S, %m/%d/%Y")
     myprint("PC restarted by " + userName + " at " + date_time)
     update.message.reply_text('Restarting your PC \U0001F635 The bot will be stopped')
-    Popen("shutdown /r /t 1",shell=True)   
+    if system() == 'Windows':
+        Popen("shutdown /r /t 1",shell=True)   
+    elif system() == 'Linux':
+        pass
+    else:
+        error("OS not supported")
     stop(update,context)
     
 def hibernate(update: Update, context: CallbackContext) -> None:
@@ -238,7 +277,12 @@ def hibernate(update: Update, context: CallbackContext) -> None:
     date_time = now.strftime("%H:%M:%S, %m/%d/%Y")
     myprint("PC hibernated down by " + userName + " at " + date_time)
     update.message.reply_text('Hibernating your PC \U0001F634 The bot will be stopped')
-    Popen("shutdown /h /f",shell=True)
+    if system() == 'Windows':
+        Popen("shutdown /h /f",shell=True)
+    elif system() == 'Linux':
+        pass
+    else:
+        error("OS not supported")
     stop(update,context)
     
 def standby(update: Update, context: CallbackContext) -> None:
@@ -247,7 +291,12 @@ def standby(update: Update, context: CallbackContext) -> None:
     date_time = now.strftime("%H:%M:%S, %m/%d/%Y")
     myprint("PC put on standby by " + userName + " at " + date_time)
     update.message.reply_text('Putting your PC on standby \U0001F634 The bot will be stopped')
-    Popen("rundll32.exe powrprof.dll,SetSuspendState Sleep",shell=True)
+    if system() == 'Windows':
+        Popen("rundll32.exe powrprof.dll,SetSuspendState Sleep",shell=True)
+    elif system() == 'Linux':
+        pass
+    else:
+        error("OS not supported")
     stop(update,context)
     
 def logout(update: Update, context: CallbackContext) -> None:
@@ -256,7 +305,12 @@ def logout(update: Update, context: CallbackContext) -> None:
     date_time = now.strftime("%H:%M:%S, %m/%d/%Y")
     myprint("PC logged out by " + userName + " at " + date_time)
     update.message.reply_text('Logging out your PC \U0001F634 The bot will be stopped')
-    Popen("shutdown /l",shell=True)   
+    if system() == 'Windows':
+        Popen("shutdown /l",shell=True)   
+    elif system() == 'Linux':
+        pass
+    else:
+        error("OS not supported")
     stop(update,context)  
 
 def oscar(update: Update, context: CallbackContext) -> None:
