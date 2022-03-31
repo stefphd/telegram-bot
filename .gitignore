@@ -3,6 +3,8 @@ dist/
 build/
 __pycache__/
 
+*.webp
+
 *.log
 
 TEST*.xml
